@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
 import type { Project } from "@/data/projects";
 import type { Lang } from "@/context/LanguageContext";
 import Chip from "./Chip";
@@ -18,6 +22,44 @@ function LockIcon() {
       <rect x="5" y="11" width="14" height="9" rx="2" />
       <path d="M8 11V7a4 4 0 1 1 8 0v4" />
     </svg>
+  );
+}
+
+function screenshotUrl(liveUrl: string) {
+  const params = new URLSearchParams({
+    url: liveUrl,
+    screenshot: "true",
+    meta: "false",
+    embed: "screenshot.url",
+  });
+  return `https://api.microlink.io/?${params.toString()}`;
+}
+
+function ProjectThumbnail({ project }: { project: Project }) {
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-accent/20 via-card to-background">
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="font-display text-2xl font-bold text-foreground/15">
+          {project.name}
+        </span>
+      </div>
+      {project.live && !failed && (
+        <Image
+          src={screenshotUrl(project.live)}
+          alt={`${project.name} preview`}
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          className={`object-cover object-top transition-opacity duration-500 ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
+    </div>
   );
 }
 
@@ -50,13 +92,7 @@ export default function ProjectCard({
 
   return (
     <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_0_32px_rgba(108,99,255,0.25)]">
-      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-accent/20 via-card to-background">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-display text-2xl font-bold text-foreground/15">
-            {project.name}
-          </span>
-        </div>
-      </div>
+      <ProjectThumbnail project={project} />
       <div className="p-6">
         <h3 className="font-display text-xl font-bold">{project.name}</h3>
         <p className="mt-2 text-sm text-foreground/70">
