@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
@@ -10,12 +10,7 @@ import type { Variant } from "./StoryScene";
 
 const StoryScene = dynamic(() => import("./StoryScene"), {
   ssr: false,
-  loading: () => (
-    <div
-      className="w-full animate-pulse rounded-2xl bg-card/30"
-      style={{ height: "clamp(420px, 72vh, 680px)" }}
-    />
-  ),
+  loading: () => <div className="w-full h-full animate-pulse bg-[#080610]" />,
 });
 
 const itemVariants = {
@@ -26,97 +21,104 @@ const itemVariants = {
 export default function StoryContent() {
   const { lang } = useLanguage();
   const t = storyContent[lang];
-  const [variant, setVariant] = useState<Variant>("neon");
+  const [variant, setVariant] = useState<Variant>("pop");
+
+  const worldRef      = useRef<HTMLDivElement>(null);
+  const scrollProgress = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (!worldRef.current) return;
+      const rect  = worldRef.current.getBoundingClientRect();
+      const total = worldRef.current.offsetHeight - window.innerHeight;
+      scrollProgress.current = Math.max(0, Math.min(1, -rect.top / total));
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
-      {/* ── Hero ────────────────────────────────────────── */}
-      <section className="pt-32 pb-8">
+      {/* ── Hero ──────────────────────────────────────────── */}
+      <section className="pt-32 pb-10">
         <div className="mx-auto max-w-6xl px-6">
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="mb-3 text-sm uppercase tracking-[0.2em] text-accent"
           >
             Emanuel Aparicio
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="font-display text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl md:text-7xl"
           >
             {t.heading}
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-5 max-w-xl text-lg text-foreground/60"
           >
             {t.subheading}
           </motion.p>
-        </div>
-      </section>
 
-      {/* ── Scene ───────────────────────────────────────── */}
-      <section className="py-4">
-        <div className="mx-auto max-w-5xl px-6">
           {/* Variant toggle */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="mb-4 flex items-center gap-3"
+            className="mt-8 flex items-center gap-3"
           >
             <span className="text-xs font-medium uppercase tracking-widest text-foreground/40">
               Style
             </span>
             <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-bold">
-              {(["neon", "pop"] as Variant[]).map((v) => (
+              {(["pop", "neon"] as Variant[]).map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setVariant(v)}
                   className={`rounded-full px-4 py-1.5 transition-all duration-300 ${
                     variant === v
-                      ? v === "neon"
-                        ? "bg-[#6c63ff] text-white shadow-[0_0_14px_rgba(108,99,255,0.7)]"
-                        : "bg-gradient-to-r from-[#ff6b6b] to-[#ffd700] text-black shadow-[0_0_14px_rgba(255,107,107,0.5)]"
+                      ? v === "pop"
+                        ? "bg-gradient-to-r from-[#ff6b6b] to-[#ffd700] text-black shadow-[0_0_14px_rgba(255,107,107,0.5)]"
+                        : "bg-[#6c63ff] text-white shadow-[0_0_14px_rgba(108,99,255,0.7)]"
                       : "text-foreground/50 hover:text-foreground"
                   }`}
                 >
-                  {v === "neon" ? "Neon" : "Pop"}
+                  {v === "pop" ? "Pop" : "Neon"}
                 </button>
               ))}
             </div>
           </motion.div>
-
-          {/* 3D Scene */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="overflow-hidden rounded-2xl border border-white/5"
-          >
-            <StoryScene variant={variant} />
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="mt-3 text-center text-xs text-foreground/30"
-          >
-            {lang === "en"
-              ? "Move your mouse to look around · Hover objects to learn more"
-              : "Mueve el mouse para explorar · Pasa el cursor sobre los objetos"}
-          </motion.p>
         </div>
       </section>
 
-      {/* ── Timeline ────────────────────────────────────── */}
+      {/* ── Scroll world (500 vh sticky) ──────────────────── */}
+      <div ref={worldRef} style={{ height: "500vh", position: "relative" }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
+          <StoryScene variant={variant} scrollProgress={scrollProgress} lang={lang} />
+
+          {/* Scroll hint — fades out once user starts scrolling */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          >
+            <span className="text-xs uppercase tracking-[0.2em] text-white/30">
+              {lang === "en" ? "Scroll to explore" : "Haz scroll para explorar"}
+            </span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="h-6 w-px bg-gradient-to-b from-white/30 to-transparent"
+            />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Timeline ──────────────────────────────────────── */}
       <section className="py-20 pb-32">
         <div className="mx-auto max-w-2xl px-6">
           <RevealSection>
@@ -135,25 +137,13 @@ export default function StoryContent() {
                 </div>
 
                 <motion.div variants={itemVariants}>
-                  <span className="font-display text-3xl font-extrabold text-accent">
-                    {m.year}
-                  </span>
-                  <p className="mt-0.5 text-xs font-medium uppercase tracking-widest text-foreground/40">
-                    {m.location}
-                  </p>
-                  <p className="mt-3 text-base leading-relaxed text-foreground/75">
-                    {m.text}
-                  </p>
+                  <span className="font-display text-3xl font-extrabold text-accent">{m.year}</span>
+                  <p className="mt-0.5 text-xs font-medium uppercase tracking-widest text-foreground/40">{m.location}</p>
+                  <p className="mt-3 text-base leading-relaxed text-foreground/75">{m.text}</p>
 
                   <div className="mt-5 flex h-44 max-w-sm items-center justify-center rounded-xl border border-dashed border-white/15 bg-card/40">
                     <div className="text-center">
-                      <svg
-                        className="mx-auto mb-2 h-7 w-7 text-foreground/20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
+                      <svg className="mx-auto mb-2 h-7 w-7 text-foreground/20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                         <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M9 9.75a.75.75 0 100-1.5.75.75 0 000 1.5zm-3.75 9h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018.75 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 005.25 19.5z" />
                       </svg>
                       <p className="text-xs text-foreground/25">Photo coming soon</p>
