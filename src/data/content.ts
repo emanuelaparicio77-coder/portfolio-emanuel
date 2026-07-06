@@ -1,6 +1,6 @@
 export const content = {
   en: {
-    nav: { work: "Work", about: "About", contact: "Contact" },
+    nav: { work: "Work", about: "About", contact: "Contact", story: "Story" },
     hero: {
       kicker: "Hello, I'm",
       name: "Emanuel Aparicio",
@@ -37,7 +37,7 @@ export const content = {
     },
   },
   es: {
-    nav: { work: "Trabajo", about: "Sobre mí", contact: "Contacto" },
+    nav: { work: "Trabajo", about: "Sobre mí", contact: "Contacto", story: "Historia" },
     hero: {
       kicker: "Hola, soy",
       name: "Emanuel Aparicio",
