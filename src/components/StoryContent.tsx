@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { storyContent } from "@/data/story";
 import RevealSection from "./RevealSection";
-import type { Variant, Mode } from "./StoryScene";
+import type { Variant } from "./StoryScene";
 
 const StoryScene = dynamic(() => import("./StoryScene"), {
   ssr: false,
@@ -22,7 +22,6 @@ export default function StoryContent() {
   const { lang } = useLanguage();
   const t = storyContent[lang];
   const [variant, setVariant] = useState<Variant>("pop");
-  const [mode, setMode]       = useState<Mode>("personal");
 
   return (
     <>
@@ -76,33 +75,13 @@ export default function StoryContent() {
                 ))}
               </div>
             </div>
-
-            {/* Mode toggle */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium uppercase tracking-widest text-foreground/40">Version</span>
-              <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-bold">
-                {(["personal", "pro"] as Mode[]).map((m) => (
-                  <button key={m} type="button" onClick={() => setMode(m)}
-                    className={`rounded-full px-4 py-1.5 transition-all duration-300 ${
-                      mode === m
-                        ? m === "personal"
-                          ? "bg-gradient-to-r from-[#a855f7] to-[#6c63ff] text-white shadow-[0_0_14px_rgba(168,85,247,0.5)]"
-                          : "bg-foreground text-background shadow-[0_0_14px_rgba(255,255,255,0.15)]"
-                        : "text-foreground/50 hover:text-foreground"
-                    }`}
-                  >
-                    {m === "personal" ? "Personal" : "Pro"}
-                  </button>
-                ))}
-              </div>
-            </div>
           </motion.div>
         </div>
       </section>
 
       {/* ── Floating islands world ────────────────────────── */}
       <div style={{ height: "clamp(480px, 68vh, 700px)", position: "relative", overflow: "hidden" }}>
-        <StoryScene variant={variant} lang={lang} mode={mode} />
+        <StoryScene variant={variant} lang={lang} mode="pro" />
 
         {/* Hint */}
         <motion.div

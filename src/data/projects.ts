@@ -6,6 +6,7 @@ export type Project = {
   live?: string;
   github?: string;
   comingSoon?: boolean;
+  private?: boolean;
 };
 
 export const projects: Project[] = [
@@ -49,6 +50,16 @@ export const projects: Project[] = [
     },
     stack: ["JavaScript", "HTML5 Canvas"],
     live: "https://chroma-clash.vercel.app",
+  },
+  {
+    id: "automation-suite",
+    name: "Automation Suite",
+    description: {
+      en: "A private automation tool I built to run my own operations end-to-end — internal use only, so no public demo.",
+      es: "Una herramienta de automatización privada que construí para correr mis operaciones de punta a punta — uso interno, sin demo pública.",
+    },
+    stack: ["n8n", "APIs", "Webhooks"],
+    private: true,
   },
   {
     id: "coming-soon",

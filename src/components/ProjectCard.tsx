@@ -39,6 +39,20 @@ function ProjectThumbnail({ project }: { project: Project }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  if (project.private) {
+    return (
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-accent/15 via-card to-background">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(108,99,255,0.18),transparent_60%)]" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <LockIcon />
+          <span className="font-display text-2xl font-bold text-foreground/15">
+            {project.name}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-accent/20 via-card to-background">
       <div className="absolute inset-0 flex items-center justify-center">
@@ -104,6 +118,15 @@ export default function ProjectCard({
           ))}
         </div>
         <div className="mt-6 flex gap-4 text-sm font-semibold">
+          {project.private && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-foreground/50">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V7a4 4 0 1 1 8 0v4" />
+              </svg>
+              {lang === "es" ? "Privado" : "Private"}
+            </span>
+          )}
           {project.live && (
             <a
               href={project.live}
