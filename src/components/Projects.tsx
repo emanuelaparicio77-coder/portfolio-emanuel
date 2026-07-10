@@ -4,6 +4,7 @@ import { content } from "@/data/content";
 import { useLanguage } from "@/context/LanguageContext";
 import { projects } from "@/data/projects";
 import ProjectCard from "./ProjectCard";
+import StoryCard from "./StoryCard";
 import RevealSection from "./RevealSection";
 
 export default function Projects() {
@@ -21,8 +22,11 @@ export default function Projects() {
         </RevealSection>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <RevealSection>
+            <StoryCard />
+          </RevealSection>
           {projects.map((project, index) => (
-            <RevealSection key={project.id} delay={index * 0.1}>
+            <RevealSection key={project.id} delay={(index + 1) * 0.1}>
               <ProjectCard
                 project={project}
                 lang={lang}

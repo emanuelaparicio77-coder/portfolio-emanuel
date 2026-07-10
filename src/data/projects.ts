@@ -31,6 +31,26 @@ export const projects: Project[] = [
     github: "https://github.com/emanuelaparicio77-coder/Portafolio-proyect",
   },
   {
+    id: "maxicar",
+    name: "Maxicar",
+    description: {
+      en: "Multi-page site for a family used-car dealership in Doral, FL — inventory, in-lot financing, and WhatsApp contact.",
+      es: "Sitio multipágina para un lote familiar de carros usados en Doral, FL — inventario, financiamiento en el lote y contacto por WhatsApp.",
+    },
+    stack: ["HTML", "CSS", "JavaScript"],
+    live: "https://automarket-web-five.vercel.app/",
+  },
+  {
+    id: "chroma-clash",
+    name: "Chroma Clash",
+    description: {
+      en: "Original browser platform fighter — 8 fighters, local multiplayer and vs CPU, playable with keyboard, gamepad, or touch.",
+      es: "Platform fighter original para navegador — 8 luchadores, multijugador local y vs CPU, con teclado, mando o táctil.",
+    },
+    stack: ["JavaScript", "HTML5 Canvas"],
+    live: "https://chroma-clash.vercel.app",
+  },
+  {
     id: "coming-soon",
     name: "Coming soon",
     description: { en: "", es: "" },

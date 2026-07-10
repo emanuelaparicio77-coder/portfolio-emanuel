@@ -1278,13 +1278,17 @@ export default function StoryScene({
   variant,
   lang = "en",
   mode = "personal",
+  fov = 56,
+  camPos = [0, 7.5, 17],
 }: {
   variant: Variant;
   lang?: "en" | "es";
   mode?: Mode;
+  fov?: number;
+  camPos?: [number, number, number];
 }) {
   return (
-    <Canvas camera={{ position:[0,7.5,17], fov:56, near:0.1, far:260 }} style={{ width:"100%", height:"100%" }} dpr={[1,1.5]} gl={{ antialias:true }}>
+    <Canvas camera={{ position: camPos, fov, near:0.1, far:260 }} style={{ width:"100%", height:"100%" }} dpr={[1,1.5]} gl={{ antialias:true }}>
       <WorldGroup variant={variant} lang={lang} mode={mode} />
     </Canvas>
   );
