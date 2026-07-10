@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { storyContent } from "@/data/story";
 import RevealSection from "./RevealSection";
-import type { Variant } from "./StoryScene";
+import type { Variant, Mode } from "./StoryScene";
 
 const StoryScene = dynamic(() => import("./StoryScene"), {
   ssr: false,
@@ -22,20 +22,7 @@ export default function StoryContent() {
   const { lang } = useLanguage();
   const t = storyContent[lang];
   const [variant, setVariant] = useState<Variant>("pop");
-
-  const worldRef      = useRef<HTMLDivElement>(null);
-  const scrollProgress = useRef(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (!worldRef.current) return;
-      const rect  = worldRef.current.getBoundingClientRect();
-      const total = worldRef.current.offsetHeight - window.innerHeight;
-      scrollProgress.current = Math.max(0, Math.min(1, -rect.top / total));
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const [mode, setMode]       = useState<Mode>("personal");
 
   return (
     <>
@@ -64,58 +51,69 @@ export default function StoryContent() {
             {t.subheading}
           </motion.p>
 
-          {/* Variant toggle */}
+          {/* Toggles */}
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="mt-8 flex items-center gap-3"
+            className="mt-8 flex flex-wrap items-center gap-4"
           >
-            <span className="text-xs font-medium uppercase tracking-widest text-foreground/40">
-              Style
-            </span>
-            <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-bold">
-              {(["pop", "neon"] as Variant[]).map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setVariant(v)}
-                  className={`rounded-full px-4 py-1.5 transition-all duration-300 ${
-                    variant === v
-                      ? v === "pop"
-                        ? "bg-gradient-to-r from-[#ff6b6b] to-[#ffd700] text-black shadow-[0_0_14px_rgba(255,107,107,0.5)]"
-                        : "bg-[#6c63ff] text-white shadow-[0_0_14px_rgba(108,99,255,0.7)]"
-                      : "text-foreground/50 hover:text-foreground"
-                  }`}
-                >
-                  {v === "pop" ? "Pop" : "Neon"}
-                </button>
-              ))}
+            {/* Style toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium uppercase tracking-widest text-foreground/40">Style</span>
+              <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-bold">
+                {(["pop", "neon"] as Variant[]).map((v) => (
+                  <button key={v} type="button" onClick={() => setVariant(v)}
+                    className={`rounded-full px-4 py-1.5 transition-all duration-300 ${
+                      variant === v
+                        ? v === "pop"
+                          ? "bg-gradient-to-r from-[#ff6b6b] to-[#ffd700] text-black shadow-[0_0_14px_rgba(255,107,107,0.5)]"
+                          : "bg-[#6c63ff] text-white shadow-[0_0_14px_rgba(108,99,255,0.7)]"
+                        : "text-foreground/50 hover:text-foreground"
+                    }`}
+                  >
+                    {v === "pop" ? "Pop" : "Neon"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mode toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium uppercase tracking-widest text-foreground/40">Version</span>
+              <div className="flex rounded-full border border-white/10 p-0.5 text-xs font-bold">
+                {(["personal", "pro"] as Mode[]).map((m) => (
+                  <button key={m} type="button" onClick={() => setMode(m)}
+                    className={`rounded-full px-4 py-1.5 transition-all duration-300 ${
+                      mode === m
+                        ? m === "personal"
+                          ? "bg-gradient-to-r from-[#a855f7] to-[#6c63ff] text-white shadow-[0_0_14px_rgba(168,85,247,0.5)]"
+                          : "bg-foreground text-background shadow-[0_0_14px_rgba(255,255,255,0.15)]"
+                        : "text-foreground/50 hover:text-foreground"
+                    }`}
+                  >
+                    {m === "personal" ? "Personal" : "Pro"}
+                  </button>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Scroll world (500 vh sticky) ──────────────────── */}
-      <div ref={worldRef} style={{ height: "500vh", position: "relative" }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
-          <StoryScene variant={variant} scrollProgress={scrollProgress} lang={lang} />
+      {/* ── Floating islands world ────────────────────────── */}
+      <div style={{ height: "clamp(480px, 68vh, 700px)", position: "relative", overflow: "hidden" }}>
+        <StoryScene variant={variant} lang={lang} mode={mode} />
 
-          {/* Scroll hint — fades out once user starts scrolling */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-[0.2em] text-white/30">
-              {lang === "en" ? "Scroll to explore" : "Haz scroll para explorar"}
-            </span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-              className="h-6 w-px bg-gradient-to-b from-white/30 to-transparent"
-            />
-          </motion.div>
-        </div>
+        {/* Hint */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 1.4 }}
+          className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2"
+        >
+          <span className="text-[11px] uppercase tracking-[0.22em] text-white/25">
+            {lang === "en" ? "Drag to rotate · hover to explore" : "Arrastra para rotar · hover para explorar"}
+          </span>
+        </motion.div>
       </div>
 
       {/* ── Timeline ──────────────────────────────────────── */}
